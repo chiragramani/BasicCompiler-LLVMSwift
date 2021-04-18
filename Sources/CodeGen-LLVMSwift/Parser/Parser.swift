@@ -10,7 +10,7 @@ import Foundation
 final class Parser {
     
     private let tokenKinds: [TokenKind]
-    private var index = 0
+    private var currentIndex = 0
     
     init(tokenKinds: [TokenKind]) {
         self.tokenKinds = tokenKinds
@@ -27,7 +27,7 @@ final class Parser {
     // MARK: Private
     
     private var tokensAvailable: Bool {
-        index < tokenKinds.count
+        currentIndex < tokenKinds.count
     }
     
     private func parseExpression() throws -> Expr {
@@ -50,11 +50,11 @@ final class Parser {
     }
     
     private var currentToken: TokenKind? {
-        return index < tokenKinds.count ? tokenKinds[index] : nil
+        return currentIndex < tokenKinds.count ? tokenKinds[currentIndex] : nil
     }
     
     private func consumeToken(n: Int = 1) {
-        index += n
+        currentIndex += n
     }
     
     private func parseReturnStatement() throws -> ReturnStatement {
