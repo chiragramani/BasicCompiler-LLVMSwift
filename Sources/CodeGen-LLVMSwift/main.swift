@@ -12,4 +12,7 @@ func main() {
 """
 
 let lexer = Lexer(input: code)
-print(lexer.lex())
+let tokenKinds = lexer.lex()
+
+let parser = Parser(tokenKinds: tokenKinds)
+let ast = try parser.parse()
