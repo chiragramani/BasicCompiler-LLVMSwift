@@ -61,7 +61,6 @@ final class Lexer {
         } else if let tokenKind = TokenKind(lexeme: successiveAlphaNumericString()) {
             return tokenKind
         } else {
-            advanceIndex()
             return advanceToNextToken()
         }
     }
