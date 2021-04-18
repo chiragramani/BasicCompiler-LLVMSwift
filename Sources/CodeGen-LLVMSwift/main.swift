@@ -7,6 +7,7 @@ let intermediateRepresentations: [IRGen] = [
 let code = """
 func main() {
  let a: Int = 20
+ print(a)
 }
 """
 
