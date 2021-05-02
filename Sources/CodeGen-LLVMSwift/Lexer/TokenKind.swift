@@ -7,21 +7,11 @@
 
 import Foundation
 
-enum BinaryOperator {
-    case plus
-    case minus
-    case times
-    case divide
-    case mod
-    case equals
-}
-
-
 // Supports
 /// 1 Supports a very smaller subset of grammar
 /// 2 How does the compile type or runtime metadata varies when different acess controls are provided
 /// 3 How IR emission works? How is SIL benefitting us?
-enum TokenKind {
+enum TokenKind: Equatable {
     case funcKeyword
     case letKeyword
     case varKeyword
@@ -47,14 +37,9 @@ enum TokenKind {
     case stringLiteral(String)
     case booleanLiteral(Bool)
     
-    case integerType
-    case booleanType
-    case stringType
-    case floatType
+    case primitiveType(PrimitiveType)
 
     case identifier(String)
-    
-    static let singleLengthToken: Set<Character> = ["(", ")", "{", "}", ",", ":", "="]
 }
 
 extension TokenKind {
@@ -113,13 +98,13 @@ extension TokenKind {
             self = .booleanLiteral(false)
             
         case "Int":
-            self = .integerType
+            self = .primitiveType(.integer)
         case "Bool":
-            self = .booleanType
+            self = .primitiveType(.bool)
         case "String":
-            self = .stringType
+            self = .primitiveType(.string)
         case "Float":
-            self = .floatType
+            self = .primitiveType(.float)
             
         case _ where RegexKind.identifier.matches(lexeme):
             self = .identifier(lexeme)
@@ -135,19 +120,16 @@ extension TokenKind {
             fatalError("Couldnt construct a token for lexeme: \(lexeme)")
         }
     }
-}
-
-enum RegexKind {
-    static let float = try! NSRegularExpression(pattern: "[0-9]+\\.[0-9]*")
-    static let integer = try! NSRegularExpression(pattern: "[0-9]+")
-    static let string = try! NSRegularExpression(pattern: "\".*\"")
-    static let identifier = try! NSRegularExpression(pattern: "[a-zA-Z][a-zA-Z0-9]*")
-    static let spacesNewLinesTabs = try! NSRegularExpression(pattern: "[ \t\n]+")
-}
-
-extension NSRegularExpression {
-    func matches(_ string: String) -> Bool {
-        let range = NSRange(location: 0, length: string.utf16.count)
-        return firstMatch(in: string, options: [], range: range) != nil
+    
+    var isBinaryOperator: Bool {
+        switch self {
+        case .binaryOperator:
+            return true
+        default:
+            return false
+        }
     }
+    
+    static let singleLengthToken: Set<Character> = ["(", ")", "{", "}", ",", ":", "=", "+", "-", "*", "/", "%"]
+    
 }

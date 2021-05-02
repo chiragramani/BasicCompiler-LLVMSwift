@@ -7,6 +7,15 @@
 
 import Foundation
 
+enum ParserError: Error {
+    case expectedTokenKindFuncKeyword
+    case expectedLeftParen
+    case expectedIdentifier
+    
+    case expectedFunctionArrow
+    case unknown
+}
+
 final class Parser {
     
     private let tokenKinds: [TokenKind]
@@ -45,6 +54,8 @@ final class Parser {
         case .ifKeyword:
             return try parseIfStatement()
         default:
+            // This can be a function call: main(score: 5)
+            // Or this can be an assignment a = 5; b = "Abc"; c = 10.
             return try parseBasicExpression()
         }
     }
@@ -53,38 +64,290 @@ final class Parser {
         return currentIndex < tokenKinds.count ? tokenKinds[currentIndex] : nil
     }
     
+    private var nextToken: TokenKind? {
+        let nextIndex = currentIndex + 1
+        return nextIndex < tokenKinds.count ? tokenKinds[nextIndex] : nil
+    }
+    
     private func consumeToken(n: Int = 1) {
         currentIndex += n
     }
     
     private func parseReturnStatement() throws -> ReturnStatement {
-        fatalError()
+        guard currentToken == .returnKeyword else {
+            throw ParserError.unknown
+        }
+        consumeToken()
+        return ReturnStatement(value: try parseBasicExpression())
     }
     
     private func parsePrintStatement() throws -> PrintStatement {
-        fatalError()
+        guard currentToken == .printKeyword else {
+            throw ParserError.expectedTokenKindFuncKeyword
+        }
+        consumeToken()
+        return PrintStatement(value: try parseFunctionCallArguments())
     }
     
     private func parseFunctionDeclaration() throws -> FunctionDeclaration {
-        fatalError()
+        guard currentToken == .funcKeyword else {
+            throw ParserError.expectedTokenKindFuncKeyword
+        }
+        consumeToken()
+        guard case let .identifier(functionName) = currentToken else {
+            throw ParserError.expectedIdentifier
+        }
+        // Parse arguments
+        consumeToken()
+        let arguments = try parseFunctionArguments()
+        
+        // Parse Return type
+        let returnType = try parseReturnType()
+        
+        // Parse body
+        let body = try parseBasicExpression()
+        let functionDeclaration = FunctionDeclaration(name: functionName,
+                                                      arguments: arguments,
+                                                      returnType: returnType,
+                                                      body: body)
+        return functionDeclaration
+    }
+    
+    private func parseFunctionArguments() throws -> [FunctionArgument] {
+        var arguments = [FunctionArgument]()
+        guard currentToken == .leftParen else {
+            throw ParserError.unknown
+        }
+        consumeToken()
+        while currentToken != .rightParen {
+            /// Argument Name
+            guard case let .identifier(argumentName) = currentToken else {
+                throw ParserError.expectedIdentifier
+            }
+            consumeToken()
+            /// Argument type
+            guard case let .primitiveType(type) = currentToken else {
+                throw ParserError.expectedIdentifier
+            }
+            let argument = FunctionArgument(name: argumentName,
+                                            type: type)
+            arguments.append(argument)
+            consumeToken()
+            if currentToken == .comma {
+                consumeToken()
+            }
+        }
+        consumeToken()
+        return arguments
+    }
+    
+    private func parseReturnType() throws -> ReturnType {
+        guard currentToken != .leftBrace else {
+            return .void
+        }
+        guard currentToken == .functionArrow else {
+            throw ParserError.expectedFunctionArrow
+        }
+        consumeToken()
+        guard case let .primitiveType(type) = currentToken else {
+            throw ParserError.expectedIdentifier
+        }
+        consumeToken()
+        return .primitiveType(type)
     }
     
     private func parseIfStatement() throws -> IfStatement {
         fatalError()
     }
     
-    private func parseVariableDeclaration() throws -> VariableDeclaration {
-        fatalError()
+    private func parseVariableDeclaration() throws -> Expr {
+        guard currentToken == .varKeyword else {
+            throw ParserError.unknown
+        }
+        consumeToken()
+        
+        guard case let .identifier(name) = currentToken else {
+            throw ParserError.expectedIdentifier
+        }
+        consumeToken()
+        // The current token can be either an assignment or : (for type).
+        var type: PrimitiveType?
+        // TODO: Type to be more expressive - when its supposed to be inferred and when its not supposed to be inferred.
+        let variableDeclaration = VariableDeclaration(name: name,
+                                                      type: type!)
+        
+        if case .colon = currentToken {
+            consumeToken()
+            type = try getType()
+        }
+        
+        
+        if .binaryOperator(.equals) == currentToken {
+            return AssignmentExpression(lhs: .variable(variableDeclaration),
+                                        value: try parseBasicExpression())
+        }
+        return variableDeclaration
     }
     
-    private func parseConstantDeclaration() throws -> ConstantDeclaration {
-        fatalError()
+    private func getType() throws -> PrimitiveType {
+        guard case let .primitiveType(primitiveType) = currentToken else {
+            throw ParserError.unknown
+        }
+        consumeToken()
+        return primitiveType
     }
     
+    private func parseConstantDeclaration() throws -> Expr {
+        guard currentToken == .letKeyword else {
+            throw ParserError.unknown
+        }
+        consumeToken()
+        
+        guard case let .identifier(name) = currentToken else {
+            throw ParserError.expectedIdentifier
+        }
+        consumeToken()
+        // The current token can be either an assignment or : (for type).
+        var type: PrimitiveType?
+        // TODO: Type to be more expressive - when its supposed to be inferred and when its not supposed to be inferred.
+        var constantDeclaration = ConstantDeclaration(name: name,
+                                                      type: type)
+        
+        if case .colon = currentToken {
+            consumeToken()
+            constantDeclaration.type = try getType()
+        }
+        
+        
+        if .binaryOperator(.equals) == currentToken {
+            consumeToken()
+            return AssignmentExpression(lhs: .constant(constantDeclaration),
+                                        value: try parseBasicExpression())
+        }
+        return constantDeclaration
+    }
+    
+    // This can be a function call: main(score: 5)
+    // Or this can be an assignment a = 5; b = "Abc"; c = 10.
+    // Or an opening of a new function scope.
+    // or an opening of a new parentheses.
     private func parseBasicExpression() throws -> Expr {
-        fatalError()
+        switch currentToken {
+        case .leftBrace:
+            return try parseOpenBrace()
+        case .leftParen:
+            return try parseOpenParen()
+        case .identifier(let name):
+            if nextToken == .leftParen {
+                consumeToken()
+                let arguments = try parseFunctionCallArguments()
+                return FunctionCallExpression(name: name,
+                                              arguments: arguments)
+            } else {
+                consumeToken()
+                let propertyReferenceExpression = PropertyReadExpression(name: name)
+                if currentToken?.isBinaryOperator == true {
+                    return try parseBinaryOperator(lhs: propertyReferenceExpression)
+                } else {
+                    return propertyReferenceExpression
+                }
+            }
+        case .floatLiteral(let floatValue):
+            
+            return FloatExpression(floatValue: floatValue)
+        case .booleanLiteral(let booleanValue):
+            consumeToken()
+            return BooleanExpression(booleanValue: booleanValue)
+        case .stringLiteral(let stringValue):
+            consumeToken()
+            return StringExpression(stringValue: stringValue)
+        case .integerLiteral(let integerValue):
+            consumeToken()
+            return IntegerExpression(intValue: integerValue)
+        default:
+            throw ParserError.unknown
+        }
+    }
+    
+    /// Doesnt take precendence into account
+    private func parseBinaryOperator(lhs: Expr) throws -> Expr {
+        var leftExpression = lhs
+        while case .binaryOperator(let op) = currentToken {
+            consumeToken()
+            let rhs = try parseBasicExpression()
+            leftExpression = BinaryOperatorExpression(lhs: leftExpression,
+                                            rhs: rhs,
+                                            op: op)
+        }
+        return leftExpression
+    }
+    
+    private func parseFunctionCallArguments() throws -> [FunctionCallArgumentType] {
+        guard case .leftParen = currentToken else {
+            throw ParserError.expectedIdentifier
+        }
+        consumeToken()
+        var arguments: [FunctionCallArgumentType] = []
+        while currentToken != .rightParen {
+            guard case let .identifier(name) = currentToken else {
+                throw ParserError.expectedIdentifier
+            }
+            consumeToken()
+            if currentToken == .colon, let nextToken = nextToken {
+                switch nextToken {
+                case .floatLiteral(let floatValue):
+                    arguments.append(.labelled(labelName: name,
+                                               value: FloatExpression(floatValue: floatValue)))
+                case .booleanLiteral(let booleanValue):
+                    arguments.append(.labelled(labelName: name,
+                                               value: BooleanExpression(booleanValue: booleanValue)))
+                case .stringLiteral(let stringValue):
+                    arguments.append(.labelled(labelName: name,
+                                               value: StringExpression(stringValue: stringValue)))
+                case .integerLiteral(let integerValue):
+                    arguments.append(.labelled(labelName: name,
+                                               value: IntegerExpression(intValue: integerValue)))
+                default:
+                    throw ParserError.unknown
+                }
+                consumeToken(n: 2)
+            } else if currentToken == .comma {
+                arguments.append(.propertyReference(PropertyReadExpression(name: name)))
+                consumeToken()
+            } else if currentToken == .rightParen {
+                arguments.append(.propertyReference(PropertyReadExpression(name: name)))
+            } else {
+                throw ParserError.unknown
+            }
+        }
+        consumeToken()
+        return arguments
+    }
+    
+    private func parseOpenBrace() throws -> Expr {
+        guard currentToken == .leftBrace else {
+            throw ParserError.expectedTokenKindFuncKeyword
+        }
+        consumeToken()
+        var body = [Expr]()
+        while currentToken != .rightBrace {
+            let expression = try parseExpression()
+            body.append(expression)
+        }
+        consumeToken()
+        return FunctionBodyExpression(body: body)
+    }
+    
+    private func parseOpenParen() throws -> Expr {
+        guard currentToken == .leftParen else {
+            throw ParserError.expectedTokenKindFuncKeyword
+        }
+        consumeToken()
+        let expression = try parseBasicExpression()
+        guard currentToken == .rightParen else {
+            throw ParserError.expectedTokenKindFuncKeyword
+        }
+        consumeToken()
+        return expression
     }
 }
-
-
-

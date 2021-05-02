@@ -14,6 +14,7 @@ enum Node {
     case printStatement(PrintStatement)
     case returnStatement(ReturnStatement)
     case ifStatement(IfStatement)
+    case other(Expr)
 }
 
 final class AST {
@@ -40,7 +41,7 @@ final class AST {
             } else if let ifStatement = expr as? IfStatement {
                 nodes.append(.ifStatement(ifStatement))
             } else {
-                fatalError("Currently accepting a limited set of expressions for construct the high level AST :)")
+                nodes.append(.other(expr))
             }
         }
     }
@@ -52,26 +53,87 @@ struct ReturnStatement: Expr {
     let value: Expr
 }
 struct PrintStatement: Expr {
-    let value: Expr
+    let value: [FunctionCallArgumentType]
+}
+
+enum ReturnType {
+    case void
+    case primitiveType(PrimitiveType)
 }
 
 struct FunctionDeclaration: Expr {
     let name: String
-    let arguments: [ConstantDeclaration]
+    let arguments: [FunctionArgument]
+    let returnType: ReturnType
     let body: Expr
+}
+
+struct FunctionArgument {
+    let name: String
+    let type: PrimitiveType
 }
 
 struct VariableDeclaration: Expr {
     let name: String
-    let value: Expr
+    let type: PrimitiveType
 }
 
 struct ConstantDeclaration: Expr {
     let name: String
-    let value: Expr
+    var type: PrimitiveType?
+}
+
+struct PropertyReadExpression: Expr {
+    let name: String
 }
 
 struct IfStatement: Expr {
     let condition: Expr
+    let body: [Expr]
+}
+
+struct FunctionCallExpression: Expr {
+    let name: String
+    let arguments: [FunctionCallArgumentType]
+}
+
+enum FunctionCallArgumentType: Expr {
+    case labelled(labelName: String, value: Expr)
+    case propertyReference(PropertyReadExpression)
+}
+
+struct IntegerExpression: Expr {
+    let intValue: Int
+}
+
+struct FloatExpression: Expr {
+    let floatValue: Float
+}
+
+struct StringExpression: Expr {
+    let stringValue: String
+}
+
+struct BooleanExpression: Expr {
+    let booleanValue: Bool
+}
+
+struct AssignmentExpression: Expr {
+    enum AssignmentExpressionLHS {
+        case constant(ConstantDeclaration)
+        case variable(VariableDeclaration)
+    }
+    let lhs: AssignmentExpressionLHS
+    let value: Expr
+}
+
+struct BinaryOperatorExpression: Expr {
+    let lhs: Expr
+    let rhs: Expr
+    let op: BinaryOperator
+}
+
+
+struct FunctionBodyExpression: Expr {
     let body: [Expr]
 }

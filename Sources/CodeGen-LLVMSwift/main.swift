@@ -5,14 +5,14 @@ let intermediateRepresentations: [IRGen] = [
 ]
 
 let code = """
-func main() {
- let a: Int = 20
+ func main() {
+ let a = 10
  print(a)
 }
 """
-
 let lexer = Lexer(input: code)
 let tokenKinds = lexer.lex()
 
 let parser = Parser(tokenKinds: tokenKinds)
 let ast = try parser.parse()
+print(ast)

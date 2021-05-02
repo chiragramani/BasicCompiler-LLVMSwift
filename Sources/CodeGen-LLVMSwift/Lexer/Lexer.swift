@@ -9,8 +9,6 @@ import Foundation
 
 //The lexer is responsible for dividing the input stream into individual tokens, identifying the token type, and passing tokens one at a time to the next stage of the compiler.
 final class Lexer {
-    private let input: String
-    private var index: String.Index
     
     init(input: String) {
         self.input = input
@@ -26,6 +24,9 @@ final class Lexer {
     }
     
     // MARK: Private
+    
+    private let input: String
+    private var index: String.Index
     
     private func successiveAlphaNumericString() -> String {
         var str = ""

@@ -8,7 +8,6 @@
 import Foundation
 import LLVM
 
-
 typealias IRGen = String
 
 protocol IRProviding {

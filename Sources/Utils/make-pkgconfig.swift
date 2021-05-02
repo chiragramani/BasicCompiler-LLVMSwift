@@ -8,7 +8,6 @@ import Foundation
 #endif
 
 /// Runs the specified program at the provided path.
-/Users/chiragramani/Documents/courses/Compilers/cornell/LittleSwift-master/Sources/LittleSwift/Interpreter
 /// - parameter path: The full path of the executable you
 ///                   wish to run.
 /// - parameter args: The arguments you wish to pass to the
