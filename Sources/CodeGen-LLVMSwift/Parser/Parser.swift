@@ -7,15 +7,6 @@
 
 import Foundation
 
-enum ParserError: Error {
-    case expectedTokenKindFuncKeyword
-    case expectedLeftParen
-    case expectedIdentifier
-    
-    case expectedFunctionArrow
-    case unknown
-}
-
 final class Parser {
     
     private let tokenKinds: [TokenKind]
@@ -54,8 +45,9 @@ final class Parser {
         case .ifKeyword:
             return try parseIfStatement()
         default:
-            // This can be a function call: main(score: 5)
+            // This can be a function call: calculate(score: 5)
             // Or this can be an assignment a = 5; b = "Abc"; c = 10.
+            // or even a revursive expression visit. 
             return try parseBasicExpression()
         }
     }
@@ -75,7 +67,7 @@ final class Parser {
     
     private func parseReturnStatement() throws -> ReturnStatement {
         guard currentToken == .returnKeyword else {
-            throw ParserError.unknown
+            throw ParserError.expectedReturnKeyword
         }
         consumeToken()
         return ReturnStatement(value: try parseBasicExpression())
@@ -83,7 +75,7 @@ final class Parser {
     
     private func parsePrintStatement() throws -> PrintStatement {
         guard currentToken == .printKeyword else {
-            throw ParserError.expectedTokenKindFuncKeyword
+            throw ParserError.expectedPrintKeyword
         }
         consumeToken()
         return PrintStatement(value: try parseFunctionCallArguments())
@@ -116,7 +108,7 @@ final class Parser {
     private func parseFunctionArguments() throws -> [FunctionArgument] {
         var arguments = [FunctionArgument]()
         guard currentToken == .leftParen else {
-            throw ParserError.unknown
+            throw ParserError.expectedLeftParen
         }
         consumeToken()
         while currentToken != .rightParen {
@@ -162,7 +154,7 @@ final class Parser {
     
     private func parseVariableDeclaration() throws -> Expr {
         guard currentToken == .varKeyword else {
-            throw ParserError.unknown
+            throw ParserError.expectedVarKeyword
         }
         consumeToken()
         
@@ -191,7 +183,7 @@ final class Parser {
     
     private func getType() throws -> PrimitiveType {
         guard case let .primitiveType(primitiveType) = currentToken else {
-            throw ParserError.unknown
+            throw ParserError.expectedPrimitiveType
         }
         consumeToken()
         return primitiveType
@@ -199,7 +191,7 @@ final class Parser {
     
     private func parseConstantDeclaration() throws -> Expr {
         guard currentToken == .letKeyword else {
-            throw ParserError.unknown
+            throw ParserError.expectedLetKeyword
         }
         consumeToken()
         
@@ -210,13 +202,15 @@ final class Parser {
         // The current token can be either an assignment or : (for type).
         var type: PrimitiveType?
         // TODO: Type to be more expressive - when its supposed to be inferred and when its not supposed to be inferred.
-        var constantDeclaration = ConstantDeclaration(name: name,
-                                                      type: type)
+        
         
         if case .colon = currentToken {
             consumeToken()
-            constantDeclaration.type = try getType()
+            type = try getType()
         }
+        
+        let constantDeclaration = ConstantDeclaration(name: name,
+                                                      type: type)
         
         
         if .binaryOperator(.equals) == currentToken {
@@ -308,7 +302,7 @@ final class Parser {
                     arguments.append(.labelled(labelName: name,
                                                value: IntegerExpression(intValue: integerValue)))
                 default:
-                    throw ParserError.unknown
+                    throw ParserError.expectedLiteralValue
                 }
                 consumeToken(n: 2)
             } else if currentToken == .comma {

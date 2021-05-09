@@ -13,6 +13,7 @@ enum RegexKind {
     static let string = try! NSRegularExpression(pattern: "\".*\"")
     static let identifier = try! NSRegularExpression(pattern: "[a-zA-Z][a-zA-Z0-9]*")
     static let spacesNewLinesTabs = try! NSRegularExpression(pattern: "[ \t\n]+")
+    static let alphaNumeric = try! NSRegularExpression(pattern: "[a-zA-Z0-9]")
 }
 
 extension NSRegularExpression {

@@ -1,5 +1,5 @@
 //
-//  Fileswift
+//  Lexer.swift
 //  
 //
 //  Created by Chirag Ramani on 18/04/21
@@ -7,7 +7,11 @@
 
 import Foundation
 
-//The lexer is responsible for dividing the input stream into individual tokens, identifying the token type, and passing tokens one at a time to the next stage of the compiler.
+/*
+ Lexer: The lexer is responsible for dividing the input stream into individual tokens,
+ identifying the token type, and then passing the tokens to the next stage of the compiler which is the Parser.
+ */
+ 
 final class Lexer {
     
     init(input: String) {
@@ -30,8 +34,7 @@ final class Lexer {
     
     private func successiveAlphaNumericString() -> String {
         var str = ""
-        while let char = currentChar,
-              CharacterSet.alphanumerics.contains(char.unicodeScalars.first!) {
+        while let char = currentChar, char.isAlphanumeric {
             str.append(char)
             advanceIndex()
         }
@@ -53,9 +56,7 @@ final class Lexer {
             advanceIndex()
         }
         // If there are no characters left, then we have finishing scanning the input.
-        guard let char = currentChar else {
-            return nil
-        }
+        guard let char = currentChar else { return nil }
         if TokenKind.singleLengthToken.contains(char) {
             advanceIndex()
             return TokenKind(lexeme: String(char))!
@@ -65,5 +66,10 @@ final class Lexer {
             return advanceToNextToken()
         }
     }
-    
+}
+
+private extension Character {
+    var isAlphanumeric: Bool {
+        RegexKind.alphaNumeric.matches(String(self))
+    }
 }

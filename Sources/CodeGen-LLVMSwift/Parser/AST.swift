@@ -80,7 +80,7 @@ struct VariableDeclaration: Expr {
 
 struct ConstantDeclaration: Expr {
     let name: String
-    var type: PrimitiveType?
+    let type: PrimitiveType?
 }
 
 struct PropertyReadExpression: Expr {
@@ -132,7 +132,6 @@ struct BinaryOperatorExpression: Expr {
     let rhs: Expr
     let op: BinaryOperator
 }
-
 
 struct FunctionBodyExpression: Expr {
     let body: [Expr]

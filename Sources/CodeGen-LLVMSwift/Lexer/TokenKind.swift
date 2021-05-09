@@ -7,10 +7,6 @@
 
 import Foundation
 
-// Supports
-/// 1 Supports a very smaller subset of grammar
-/// 2 How does the compile type or runtime metadata varies when different acess controls are provided
-/// 3 How IR emission works? How is SIL benefitting us?
 enum TokenKind: Equatable {
     case funcKeyword
     case letKeyword
