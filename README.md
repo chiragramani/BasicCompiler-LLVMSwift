@@ -7,6 +7,7 @@ A work in progress project to make a basic compiler that takes in some source co
 3. To explore different type inference algorithms - Hindley Milner Inference etc.
 4. Better developer diagnostics - how Swift and other languages contribute to making this possible, their relative trade-offs and strengths etc.
 5. Prototyping other explorations to see their respective impact and limitations.
+6. DSLs.
 
 ## Installation
 
