@@ -17,7 +17,7 @@ A work in progress project to make a basic compiler that takes in some source co
 Once you do that, the project will build all file hopefully!
 
 ## What's the grammar of the acceptable language here?
-1. It's a pretty basic subset of my favourite langiage - Swift :).
+1. It's a pretty basic subset of my favourite language - Swift :).
 2. It supports primitive types and doesn't support custom types as of now but can be easily extended to support other types.
 3. It supports functions, their call expressions, constants/variables, return values, if-else conditions.
 4. The scope is intentionally kept small so that more focus is towards how these layers work and how can they be extended considering the above mentioned goals.
