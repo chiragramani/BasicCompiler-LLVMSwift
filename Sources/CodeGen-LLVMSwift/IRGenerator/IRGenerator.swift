@@ -27,7 +27,7 @@ final class IRGenerator {
             switch node {
             case .functionDeclaration(let functionDeclaration):
                 try emitFunctionDeclaration(functionDeclaration)
-            default: fatalError()
+            default: fatalError() // TODO: Add others.
             }
         }
     }
@@ -65,7 +65,7 @@ final class IRGenerator {
         case .propertyReference(let propertyReadExpression):
             let variableReferenced =
             builder.buildLoad(localVariables[propertyReadExpression.name]!,
-                              type: LLVM.IntType.int32) // Remove int32 hardcoding
+                              type: LLVM.IntType.int32) // Update code to support other types
             return builder.buildCall(printFunction,
                                      args: [formatSpecifier(of: variableReferenced),
                                             variableReferenced])
@@ -87,8 +87,9 @@ final class IRGenerator {
     
     private func emitPrintf() -> Function {
        if let function = module.function(named: "printf") { return function }
-       
-        let printfType = FunctionType([PointerType(pointee: IntType.int8)], IntType.int32, variadic: true)
+        let printfType = FunctionType([PointerType(pointee: IntType.int8)],
+                                      IntType.int32,
+                                      variadic: true)
        return builder.addFunction("printf", type: printfType)
      }
     
