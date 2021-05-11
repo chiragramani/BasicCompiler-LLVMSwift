@@ -58,5 +58,5 @@ $ ./main
 1. https://github.com/llvm-swift/LLVMSwift
 2. [2019 LLVM Developers’ Meeting: E. Christopher & J. Doerfert “Introduction to LLVM” ](https://www.youtube.com/watch?v=J5xExRGaIIY&t=3279s)
 3. [Introduction To LLVM](https://www.youtube.com/watch?v=8pdQFUOlHLQ)
-4. T[ypes and Programming Languages - Benjamin C. Pierce]( https://www.cis.upenn.edu/~bcpierce/tapl/)
+4. [Types and Programming Languages - Benjamin C. Pierce]( https://www.cis.upenn.edu/~bcpierce/tapl/)
 
