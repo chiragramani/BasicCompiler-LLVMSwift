@@ -4,7 +4,7 @@ A work in progress project to make a basic compiler that takes in some source co
 ## Goals
 1. Learn various stages of the compilation process by making basic versions of the sub-components - Lexer, Parser, Sema, LLVM IR Generator and other optimisations that can be explored.
 2. To become more familiar with the LLVM environment. 
-3. To learn different type inference algorithms - Hindley Milner Inference etc.
+3. To explore different type inference algorithms - Hindley Milner Inference etc.
 4. Better developer diagnostics - how Swift and other languages contribute to making this possible, their relative trade-offs and strengths etc.
 5. Prototyping other explorations to see their respective impact and limitations.
 
@@ -14,7 +14,7 @@ A work in progress project to make a basic compiler that takes in some source co
 ```brew install llvm@11```
 2. Ensure llvm-config is in your PATH
 3. ```swift run Sources/Utils/make-pkgconfig.swift```
-Once you do that, the project will build all file hopefully!
+Once the above is done, the project will build all file hopefully!
 
 ## What's the grammar of the acceptable language here?
 1. It's a pretty basic subset of my favourite language - Swift :).
