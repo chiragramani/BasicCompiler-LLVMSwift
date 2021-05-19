@@ -22,6 +22,8 @@ enum ParserError: Error {
     case expectedPrimitiveType
     case expectedLiteralValue
     
+    case invalidFunctionBodyExpression
+    
     case expectedFunctionArrow
     case unknown
 }

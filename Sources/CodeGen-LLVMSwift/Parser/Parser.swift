@@ -97,12 +97,15 @@ final class Parser {
         let returnType = try parseReturnType()
         
         // Parse body
-        let body = try parseBasicExpression()
-        let functionDeclaration = FunctionDeclaration(name: functionName,
-                                                      arguments: arguments,
-                                                      returnType: returnType,
-                                                      body: body)
-        return functionDeclaration
+        if let body = try parseBasicExpression() as? FunctionBodyExpression {
+            let functionDeclaration = FunctionDeclaration(name: functionName,
+                                                          arguments: arguments,
+                                                          returnType: returnType,
+                                                          body: body)
+            return functionDeclaration
+        } else {
+            throw ParserError.invalidFunctionBodyExpression
+        }
     }
     
     private func parseFunctionArguments() throws -> [FunctionArgument] {
@@ -176,7 +179,7 @@ final class Parser {
         
         if .binaryOperator(.equals) == currentToken {
             return AssignmentExpression(lhs: .variable(variableDeclaration),
-                                        value: try parseBasicExpression())
+                                        rhs: try parseBasicExpression())
         }
         return variableDeclaration
     }
@@ -200,7 +203,7 @@ final class Parser {
         }
         consumeToken()
         // The current token can be either an assignment or : (for type).
-        var type: PrimitiveType?
+        var type: PrimitiveType = .void
         // TODO: Type to be more expressive - when its supposed to be inferred and when its not supposed to be inferred.
         
         
@@ -216,7 +219,7 @@ final class Parser {
         if .binaryOperator(.equals) == currentToken {
             consumeToken()
             return AssignmentExpression(lhs: .constant(constantDeclaration),
-                                        value: try parseBasicExpression())
+                                        rhs: try parseBasicExpression())
         }
         return constantDeclaration
     }
@@ -248,16 +251,16 @@ final class Parser {
             }
         case .floatLiteral(let floatValue):
             
-            return FloatExpression(floatValue: floatValue)
+            return FloatExpression(value: floatValue)
         case .booleanLiteral(let booleanValue):
             consumeToken()
-            return BooleanExpression(booleanValue: booleanValue)
+            return BooleanExpression(value: booleanValue)
         case .stringLiteral(let stringValue):
             consumeToken()
-            return StringExpression(stringValue: stringValue)
+            return StringExpression(value: stringValue)
         case .integerLiteral(let integerValue):
             consumeToken()
-            return IntegerExpression(intValue: integerValue)
+            return IntegerExpression(value: integerValue)
         default:
             throw ParserError.unknown
         }
@@ -269,7 +272,7 @@ final class Parser {
         while case .binaryOperator(let op) = currentToken {
             consumeToken()
             let rhs = try parseBasicExpression()
-            leftExpression = BinaryOperatorExpression(lhs: leftExpression,
+            leftExpression = BinaryExpression(lhs: leftExpression,
                                             rhs: rhs,
                                             op: op)
         }
@@ -291,16 +294,16 @@ final class Parser {
                 switch nextToken {
                 case .floatLiteral(let floatValue):
                     arguments.append(.labelled(labelName: name,
-                                               value: FloatExpression(floatValue: floatValue)))
+                                               value: FloatExpression(value: floatValue)))
                 case .booleanLiteral(let booleanValue):
                     arguments.append(.labelled(labelName: name,
-                                               value: BooleanExpression(booleanValue: booleanValue)))
+                                               value: BooleanExpression(value: booleanValue)))
                 case .stringLiteral(let stringValue):
                     arguments.append(.labelled(labelName: name,
-                                               value: StringExpression(stringValue: stringValue)))
+                                               value: StringExpression(value: stringValue)))
                 case .integerLiteral(let integerValue):
                     arguments.append(.labelled(labelName: name,
-                                               value: IntegerExpression(intValue: integerValue)))
+                                               value: IntegerExpression(value: integerValue)))
                 default:
                     throw ParserError.expectedLiteralValue
                 }
@@ -329,7 +332,7 @@ final class Parser {
             body.append(expression)
         }
         consumeToken()
-        return FunctionBodyExpression(body: body)
+        return FunctionBodyExpression(expressions: body)
     }
     
     private func parseOpenParen() throws -> Expr {

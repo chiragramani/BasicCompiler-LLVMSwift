@@ -21,12 +21,11 @@ final class IRGenerator {
         self.builder = IRBuilder(module: module)
     }
     
-    
     func emitIR() throws {
-        try ast.nodes.forEach { node in
-            switch node {
-            case .functionDeclaration(let functionDeclaration):
-                try emitFunctionDeclaration(functionDeclaration)
+        try ast.expressions.forEach { node in
+            switch node.nodeVariantType {
+            case .functionDeclaration:
+                try emitFunctionDeclaration(node)
             default: fatalError() // TODO: Add others.
             }
         }
@@ -34,14 +33,15 @@ final class IRGenerator {
     
     // MARK: Private
     
-    private func emitFunctionDeclaration(_ functionDeclaration: FunctionDeclaration) throws {
+    private func emitFunctionDeclaration(_ functionDeclaration: Expr) throws {
+        guard let functionDeclaration = functionDeclaration as? FunctionDeclaration else {
+            throw IRGeneratorError.expectedFunctionDeclaration
+        }
         let mainFunction = builder.addFunction(functionDeclaration.name,
                                                type: .init([], VoidType()))
         let entry = mainFunction.appendBasicBlock(named: "entry")
         builder.positionAtEnd(of: entry)
-        if let bodyExpr = functionDeclaration.body as? FunctionBodyExpression {
-            try bodyExpr.body.forEach { try self.emitExpr($0) }
-        }
+        try functionDeclaration.body.expressions.forEach { try self.emitExpr($0) }
         builder.buildRetVoid()
     }
     
@@ -50,7 +50,7 @@ final class IRGenerator {
         if let assignmentExpression = expr as? AssignmentExpression {
             return try emitAssignmentExpression(assignmentExpression)
         } else if let integerExpression = expr as? IntegerExpression {
-            return LLVM.IntType.int32.constant(integerExpression.intValue)
+            return LLVM.IntType.int32.constant(integerExpression.value)
         } else if let printStatement = expr as? PrintStatement {
             return try emitPrintStatement(printStatement)
         } else {
@@ -75,8 +75,8 @@ final class IRGenerator {
     }
     
     private func emitAssignmentExpression(_ expr: AssignmentExpression) throws -> IRValue {
-        let value = try emitExpr(expr.value)
-        let variableName = expr.name
+        let value = try emitExpr(expr.rhs)
+        let variableName = expr.lhsName
         let localVariable = builder.buildAlloca(type: LLVM.IntType.int32,
                                                 name: variableName)
         let storedRef = builder.buildStore(value,
@@ -99,16 +99,5 @@ final class IRGenerator {
                                                 name: "PRINTF_INTEGER")
         }
         fatalError()
-    }
-}
-
-private extension AssignmentExpression {
-    var name: String {
-        switch lhs {
-        case .constant(let constantDeclaration):
-            return constantDeclaration.name
-        case .variable(let variableDeclaration):
-            return variableDeclaration.name
-        }
     }
 }

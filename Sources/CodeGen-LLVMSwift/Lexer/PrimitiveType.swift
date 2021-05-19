@@ -12,4 +12,5 @@ enum PrimitiveType {
     case integer
     case float
     case string
+    case void
 }
