@@ -126,6 +126,6 @@ extension TokenKind {
         }
     }
     
-    static let singleLengthToken: Set<Character> = ["(", ")", "{", "}", ",", ":", "=", "+", "-", "*", "/", "%"]
+    static let singleLengthTokens: Set<Character> = ["(", ")", "{", "}", ",", ":", "=", "+", "-", "*", "/", "%"]
     
 }

@@ -57,9 +57,11 @@ final class Lexer {
         }
         // If there are no characters left, then we have finishing scanning the input.
         guard let char = currentChar else { return nil }
-        if TokenKind.singleLengthToken.contains(char) {
+        
+        if TokenKind.singleLengthTokens.contains(char),
+           let tokenKind = TokenKind(lexeme: String(char)){
             advanceIndex()
-            return TokenKind(lexeme: String(char))!
+            return tokenKind
         } else if let tokenKind = TokenKind(lexeme: successiveAlphaNumericString()) {
             return tokenKind
         } else {
