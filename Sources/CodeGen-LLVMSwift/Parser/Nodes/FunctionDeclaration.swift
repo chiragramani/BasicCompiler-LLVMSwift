@@ -16,9 +16,13 @@ enum ReturnType {
     case primitiveType(PrimitiveType)
 }
 
-struct FunctionBodyExpression: Expr {
+struct FunctionBodyExpression: Expr, CustomStringConvertible {
     let expressions: [Expr]
     let nodeVariantType: NodeVariantType = .functionBodyExpression
+    
+    var description: String {
+        "FunctionBodyExpression expressions: \([expressions.map{ $0.description }])"
+    }
 }
 
 /// An argument passed. An argument has a well defined name and a type.
@@ -28,10 +32,14 @@ struct FunctionArgument {
     let type: PrimitiveType
 }
 
-struct FunctionDeclaration: Expr {
+struct FunctionDeclaration: Expr, CustomStringConvertible {
     let name: String
     let arguments: [FunctionArgument]
     let returnType: ReturnType
     let body: FunctionBodyExpression
     let nodeVariantType: NodeVariantType = .functionDeclaration
+    
+    var description: String {
+        "FunctionDeclaration -> name: \(name),arguments: \(arguments),returnType: \(returnType),body: \(body)"
+    }
 }

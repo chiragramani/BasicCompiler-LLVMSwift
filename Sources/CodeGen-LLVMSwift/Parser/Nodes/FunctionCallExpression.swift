@@ -7,8 +7,12 @@
 
 import Foundation
 
-struct FunctionCallExpression: Expr {
+struct FunctionCallExpression: Expr, CustomStringConvertible {
     let name: String
     let arguments: [FunctionCallArgumentType]
     let nodeVariantType: NodeVariantType = .functionCallExpression
+    
+    var description: String {
+        "FunctionCallExpression name: \(name), arguments: \(arguments)"
+    }
 }

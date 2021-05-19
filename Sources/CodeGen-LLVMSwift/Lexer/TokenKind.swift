@@ -103,7 +103,7 @@ extension TokenKind {
             self = .primitiveType(.float)
             
         case _ where RegexKind.identifier.matches(lexeme):
-            self = .identifier(lexeme)
+            self = .identifier(RegexKind.identifier.firstMatched(lexeme))
         case _ where RegexKind.float.matches(lexeme):
             guard let floatValue = Float(lexeme) else { return nil }
             self = .floatLiteral(floatValue)
@@ -111,7 +111,7 @@ extension TokenKind {
             guard let integerValue = Int(lexeme) else { return nil }
             self = .integerLiteral(integerValue)
         case _ where RegexKind.string.matches(lexeme):
-            self = .stringLiteral(lexeme)
+            self = .stringLiteral(RegexKind.string.firstMatched(lexeme))
         default:
             fatalError("Couldnt construct a token for lexeme: \(lexeme)")
         }

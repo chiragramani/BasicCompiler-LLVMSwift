@@ -7,7 +7,11 @@
 
 import Foundation
 
-struct PropertyReadExpression: Expr {
+struct PropertyReadExpression: Expr, CustomStringConvertible {
     let name: String
     let nodeVariantType: NodeVariantType = .propertyReadExpression
+    
+    var description: String {
+        "PropertyReadExpression (name: \(name))"
+    }
 }

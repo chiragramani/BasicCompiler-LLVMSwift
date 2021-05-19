@@ -17,6 +17,7 @@ final class AST {
 
 protocol Expr {
     var nodeVariantType: NodeVariantType { get }
+    var description: String { get }
 }
 
 

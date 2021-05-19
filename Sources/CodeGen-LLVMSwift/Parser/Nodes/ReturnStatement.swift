@@ -11,4 +11,8 @@ struct ReturnStatement: Expr {
     /// The value can be a simple expression such as a constant integer or maybe an expression involving some computation.
     let value: Expr
     let nodeVariantType: NodeVariantType = .returnStatement
+    
+    var description: String {
+        "ReturnStatement value: \(value.description)"
+    }
 }

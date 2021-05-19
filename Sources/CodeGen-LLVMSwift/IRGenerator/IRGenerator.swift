@@ -53,7 +53,13 @@ final class IRGenerator {
             return LLVM.IntType.int32.constant(integerExpression.value)
         } else if let printStatement = expr as? PrintStatement {
             return try emitPrintStatement(printStatement)
-        } else {
+        } else if let stringExpression = expr as? StringExpression {
+            return LLVM.ArrayType.constant(string: stringExpression.value)
+        } else if let floatExpression = expr as? FloatExpression {
+            return LLVM.FloatType.float.constant(Double(floatExpression.value))
+        } else if let booleanExpression = expr as? BooleanExpression {
+            return LLVM.IntType.int1.constant(booleanExpression.value ? 1 : 0)
+        }  else {
             fatalError()
         }
     }

@@ -7,14 +7,27 @@
 
 import Foundation
 
-struct AssignmentExpression: Expr {
-    enum AssignmentExpressionLHS {
+struct AssignmentExpression: Expr, CustomStringConvertible {
+    enum AssignmentExpressionLHS: CustomStringConvertible {
         case constant(ConstantDeclaration)
         case variable(VariableDeclaration)
+        
+        var description: String {
+            switch self {
+            case .constant(let constantDeclaration):
+                return constantDeclaration.name
+            case .variable(let variableDeclaration):
+                return variableDeclaration.name
+            }
+        }
     }
     let lhs: AssignmentExpressionLHS
     let rhs: Expr
     let nodeVariantType: NodeVariantType = .assignmentExpression
+    
+    var description: String {
+        "AssignmentExpression, lhs: \(lhs.description), rhs: \(rhs.description)"
+    }
 }
 
 extension AssignmentExpression {

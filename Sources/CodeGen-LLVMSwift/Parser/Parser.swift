@@ -250,7 +250,7 @@ final class Parser {
                 }
             }
         case .floatLiteral(let floatValue):
-            
+            consumeToken()
             return FloatExpression(value: floatValue)
         case .booleanLiteral(let booleanValue):
             consumeToken()

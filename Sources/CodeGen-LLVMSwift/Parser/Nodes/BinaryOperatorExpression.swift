@@ -7,9 +7,13 @@
 
 import Foundation
 
-struct BinaryExpression: Expr {
+struct BinaryExpression: Expr, CustomStringConvertible {
     let lhs: Expr
     let rhs: Expr
     let op: BinaryOperator
     let nodeVariantType: NodeVariantType = .binaryExpression
+    
+    var description: String {
+        "lhs: \(lhs.description), rhs: \(rhs.description), op: \(op)"
+    }
 }

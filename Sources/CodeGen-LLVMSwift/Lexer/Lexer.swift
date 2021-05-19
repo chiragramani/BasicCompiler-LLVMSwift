@@ -34,11 +34,29 @@ final class Lexer {
     
     private func successiveAlphaNumericString() -> String {
         var str = ""
-        while let char = currentChar, char.isAlphanumeric {
+        let shouldSkipWhitespaces = currentChar == "\""
+        while let char = currentChar,
+              isEligible(char: char,
+                         shouldSkipWhitespaces: shouldSkipWhitespaces) {
             str.append(char)
             advanceIndex()
         }
         return str
+    }
+    
+    private func isEligible(char: Character,
+                      shouldSkipWhitespaces: Bool) -> Bool {
+        /// multi-line string isn't supported in this small project.
+        if (char.isWhitespace && !char.isNewline) && shouldSkipWhitespaces {
+            return true
+        }
+        if char == "\"" {
+            return true
+        }
+        if char == "." {
+            return true
+        }
+        return char.isAlphanumeric
     }
     
     private func advanceIndex() {
