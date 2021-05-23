@@ -21,6 +21,8 @@ enum TokenKind: Equatable {
     case leftBrace
     case rightBrace
     
+    case equals
+    
     case comma
     case colon
     
@@ -77,7 +79,7 @@ extension TokenKind {
         case "-":
             self = .binaryOperator(.minus)
         case "=":
-            self = .binaryOperator(.equals)
+            self = .equals
         case "%":
             self = .binaryOperator(.mod)
         case "*":

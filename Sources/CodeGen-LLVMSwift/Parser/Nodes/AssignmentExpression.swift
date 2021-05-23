@@ -39,5 +39,14 @@ extension AssignmentExpression {
             return variableDeclaration.name
         }
     }
+    
+    var type: PrimitiveType {
+        switch lhs {
+        case .constant(let constantDeclaration):
+            return constantDeclaration.type
+        case .variable(let variableDeclaration):
+            return variableDeclaration.type
+        }
+    }
 }
 

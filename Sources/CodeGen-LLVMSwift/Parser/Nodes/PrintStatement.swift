@@ -7,13 +7,9 @@
 
 import Foundation
 
-enum FunctionCallArgumentType: Expr, CustomStringConvertible {
+enum FunctionCallArgumentType: CustomStringConvertible {
     case labelled(labelName: String, value: Expr)
     case propertyReference(PropertyReadExpression)
-    
-    var nodeVariantType: NodeVariantType  {
-        .functionCallExpression
-    }
     
     var description: String {
         "FunctionCallArgumentType: \(debugDescription)"

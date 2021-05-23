@@ -177,7 +177,7 @@ final class Parser {
         }
         
         
-        if .binaryOperator(.equals) == currentToken {
+        if .equals == currentToken {
             return AssignmentExpression(lhs: .variable(variableDeclaration),
                                         rhs: try parseBasicExpression())
         }
@@ -216,7 +216,7 @@ final class Parser {
                                                       type: type)
         
         
-        if .binaryOperator(.equals) == currentToken {
+        if .equals == currentToken {
             consumeToken()
             return AssignmentExpression(lhs: .constant(constantDeclaration),
                                         rhs: try parseBasicExpression())
@@ -251,16 +251,36 @@ final class Parser {
             }
         case .floatLiteral(let floatValue):
             consumeToken()
-            return FloatExpression(value: floatValue)
+            let floatExpression = FloatExpression(value: floatValue)
+            if currentToken?.isBinaryOperator == true {
+                return try parseBinaryOperator(lhs: floatExpression)
+            } else {
+                return floatExpression
+            }
         case .booleanLiteral(let booleanValue):
             consumeToken()
-            return BooleanExpression(value: booleanValue)
+            let booleanExpression = BooleanExpression(value: booleanValue)
+            if currentToken?.isBinaryOperator == true {
+                return try parseBinaryOperator(lhs: booleanExpression)
+            } else {
+                return booleanExpression
+            }
         case .stringLiteral(let stringValue):
             consumeToken()
-            return StringExpression(value: stringValue)
+            let stringExpression = StringExpression(value: stringValue)
+            if currentToken?.isBinaryOperator == true {
+                return try parseBinaryOperator(lhs: stringExpression)
+            } else {
+                return stringExpression
+            }
         case .integerLiteral(let integerValue):
             consumeToken()
-            return IntegerExpression(value: integerValue)
+            let integerExpression = IntegerExpression(value: integerValue)
+            if currentToken?.isBinaryOperator == true {
+                return try parseBinaryOperator(lhs: integerExpression)
+            } else {
+                return integerExpression
+            }
         default:
             throw ParserError.unknown
         }

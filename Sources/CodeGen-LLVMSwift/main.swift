@@ -2,8 +2,9 @@ import Foundation
 
 let code = """
  func main() {
- let a = 10
+ let a: Int = 123 + 456
  print(a)
+ return a
 }
 """
 

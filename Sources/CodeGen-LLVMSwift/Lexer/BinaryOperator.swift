@@ -13,5 +13,4 @@ enum BinaryOperator {
     case times
     case divide
     case mod
-    case equals
 }

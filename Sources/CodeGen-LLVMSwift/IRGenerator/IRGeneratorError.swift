@@ -9,4 +9,5 @@ import Foundation
 
 enum IRGeneratorError: Error {
     case expectedFunctionDeclaration
+    case failedCast
 }
