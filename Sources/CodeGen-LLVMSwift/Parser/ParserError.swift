@@ -21,6 +21,7 @@ enum ParserError: Error {
     case expectedVarKeyword
     case expectedPrimitiveType
     case expectedLiteralValue
+    case expectedColon
     
     case invalidFunctionBodyExpression
     

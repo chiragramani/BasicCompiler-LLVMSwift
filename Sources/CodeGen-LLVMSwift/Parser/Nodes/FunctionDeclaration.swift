@@ -7,15 +7,6 @@
 
 import Foundation
 
-/// Return type of a function.
-enum ReturnType {
-    // When the return type is not specified.
-    case void
-    
-    // When the return type is specified
-    case primitiveType(PrimitiveType)
-}
-
 struct FunctionBodyExpression: Expr, CustomStringConvertible {
     let expressions: [Expr]
     let nodeVariantType: NodeVariantType = .functionBodyExpression
@@ -35,7 +26,7 @@ struct FunctionArgument {
 struct FunctionDeclaration: Expr, CustomStringConvertible {
     let name: String
     let arguments: [FunctionArgument]
-    let returnType: ReturnType
+    let returnType: PrimitiveType
     let body: FunctionBodyExpression
     let nodeVariantType: NodeVariantType = .functionDeclaration
     

@@ -56,6 +56,12 @@ final class Lexer {
         if char == "." {
             return true
         }
+        if char == ">" {
+            return true
+        }
+        if char == "-" {
+            return true
+        }
         return char.isAlphanumeric
     }
     
@@ -67,6 +73,14 @@ final class Lexer {
         return index < input.endIndex ? input[index] : nil
     }
     
+    private var nextIndex: String.Index {
+        input.index(after: index)
+    }
+    
+    private var nextChar: Character? {
+        return nextIndex < input.endIndex ? input[nextIndex] : nil
+    }
+    
     private func advanceToNextToken() -> TokenKind? {
         // Skipping spaces
         while let char = currentChar,
@@ -76,7 +90,7 @@ final class Lexer {
         // If there are no characters left, then we have finishing scanning the input.
         guard let char = currentChar else { return nil }
         
-        if TokenKind.singleLengthTokens.contains(char),
+        if isEligibleSingleLengthToken(char),
            let tokenKind = TokenKind(lexeme: String(char)){
             advanceIndex()
             return tokenKind
@@ -85,6 +99,13 @@ final class Lexer {
         } else {
             return advanceToNextToken()
         }
+    }
+    
+    private func isEligibleSingleLengthToken(_ character: Character) -> Bool {
+        if character == "-" && nextChar == ">" {
+            return false
+        }
+        return TokenKind.singleLengthTokens.contains(character)
     }
 }
 

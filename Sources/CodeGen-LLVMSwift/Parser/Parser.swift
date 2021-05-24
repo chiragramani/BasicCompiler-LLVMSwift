@@ -120,6 +120,10 @@ final class Parser {
                 throw ParserError.expectedIdentifier
             }
             consumeToken()
+            guard case .colon = currentToken else {
+                throw ParserError.expectedColon
+            }
+            consumeToken()
             /// Argument type
             guard case let .primitiveType(type) = currentToken else {
                 throw ParserError.expectedIdentifier
@@ -136,7 +140,7 @@ final class Parser {
         return arguments
     }
     
-    private func parseReturnType() throws -> ReturnType {
+    private func parseReturnType() throws -> PrimitiveType {
         guard currentToken != .leftBrace else {
             return .void
         }
@@ -148,7 +152,7 @@ final class Parser {
             throw ParserError.expectedIdentifier
         }
         consumeToken()
-        return .primitiveType(type)
+        return type
     }
     
     private func parseIfStatement() throws -> IfStatement {
@@ -214,7 +218,6 @@ final class Parser {
         
         let constantDeclaration = ConstantDeclaration(name: name,
                                                       type: type)
-        
         
         if .equals == currentToken {
             consumeToken()
@@ -328,6 +331,9 @@ final class Parser {
                     throw ParserError.expectedLiteralValue
                 }
                 consumeToken(n: 2)
+                if currentToken == .comma {
+                    consumeToken()
+                }
             } else if currentToken == .comma {
                 arguments.append(.propertyReference(PropertyReadExpression(name: name)))
                 consumeToken()

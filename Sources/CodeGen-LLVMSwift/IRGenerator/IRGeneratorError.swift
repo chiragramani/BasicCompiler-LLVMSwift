@@ -10,4 +10,7 @@ import Foundation
 enum IRGeneratorError: Error {
     case expectedFunctionDeclaration
     case failedCast
+    case unknownFunction(functionName: String)
+    
+    case couldntFindVariableInScope(variableName: String)
 }
